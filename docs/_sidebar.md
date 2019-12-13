@@ -1,10 +1,15 @@
 * [导出PDF](page/exportPDF/index)
 * [vue中引入jquery](page/vue中引入jquery/index)
-* [IOS软键盘收回页面出现空白](page/IOS软键盘收回页面出现空白/index)
 * [多行省略样式打包后无效](page/多行省略样式打包后无效/index)
 * [new Date()的IOS兼容](page/newDate的IOS兼容/index)
 * [js获取数组的交集、并集、差集、补集](page/js获取数组的交集、并集、差集、补集/index)
 * [webpack打包报错：IEcharts、UglifyJs](page/webpack打包报错/index)
+* [7个有用的Vue开发技巧](page/7个有用的Vue开发技巧/index)
+* [Vue组件间通信六种方式（完整版）](page/Vue组件间通信六种方式（完整版）/index)
+
+* 软键盘兼容
+    * [H5软键盘兼容方案](page/软键盘兼容/H5软键盘兼容方案/index)
+    * [IOS软键盘收回页面出现空白](page/软键盘兼容/IOS软键盘收回页面出现空白/index)
 
 * Vue组件精讲
     * [开篇：Vue.js 的精髓——组件](page/vue组件精讲/01-opening)

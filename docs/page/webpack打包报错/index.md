@@ -11,7 +11,7 @@
  ![](image/Image2.png)
 
  #### 在webpack.base.conf.js中修改
- ```
+ ``` js
  {
     test: /\.js$/,
     loader: 'babel-loader',

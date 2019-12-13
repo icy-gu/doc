@@ -10,7 +10,7 @@
 * 目前这两个插件的版本是没有问题的，最新的插件会出现白屏问题
 
 ### 代码
-``` JavaScript
+``` js
 var title = '打印票'
 // 解决PDF打印模糊的问题
 // 将canvas的属性width和height属性放大2倍
@@ -72,7 +72,7 @@ html2Canvas(pdfDoms[i],opts).then(
 
 #### 2、PDF内容模糊
 ##### 解决方法：将canvas的宽高放大两倍
-```
+``` js
 c.width = pdfDoms[i].width * 2
 c.height = pdfDoms[i].height * 2
 c.getContext("2d").scale(2, 2);

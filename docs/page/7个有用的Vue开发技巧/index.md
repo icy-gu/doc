@@ -1,0 +1,256 @@
+## 7 个 有用的 Vue 开发技巧
+
+> 1.状态共享
+
+随着组件的细化，就会遇到多组件状态共享的情况， Vuex当然可以解决这类问题，不过就像 Vuex官方文档所说的，如果应用不够大，为避免代码繁琐冗余，最好不要使用它，今天我们介绍的是 vue.js 2.6 新增加的 Observable API ，通过使用这个 api 我们可以应对一些简单的跨组件数据状态共享的情况。
+
+如下这个例子，我们将在组件外创建一个 store，然后在 App.vue组件里面使用 store.js 提供的 store和 mutation方法，同理其它组件也可以这样使用，从而实现多个组件共享数据状态。
+
+首先创建一个 store.js，包含一个 store和一个 mutations，分别用来指向数据和处理方法。
+
+``` js
+    import Vue from "vue";
+
+    export const store = Vue.observable({ count: 0 });
+
+    export const mutations = {
+        setCount(count) {
+            store.count = count;
+        }
+    };
+```
+
+然后在 App.vue里面引入这个 store.js，在组件里面使用引入的数据和方法
+
+``` js
+    <template>
+    <div id="app">
+        <img width="25%" src="./assets/logo.png">
+        <p>count:{{count}}</p>
+        <button @click="setCount(count+1)">+1</button>
+        <button @click="setCount(count-1)">-1</button>
+    </div>
+    </template>
+
+    <script>
+        import { store, mutations } from "./store";
+        export default{
+            name:"App",
+            computed: {
+                count() {
+                    return store.count;
+                }
+            },
+            methods: {
+                setCount: mutations.setCount
+            }
+        };
+    </script>
+```
+
+> 2.长列表性能优化
+
+我们应该都知道 vue会通过 object.defineProperty对数据进行劫持，来实现视图响应数据的变化，然而有些时候我们的组件就是纯粹的数据展示，不会有任何改变，我们就不需要 vue来劫持我们的数据，在大量数据展示的情况下，这能够很明显的减少组件初始化的时间，那如何禁止 vue劫持我们的数据呢？可以通过 object.freeze方法来冻结一个对象，一旦被冻结的对象就再也不能被修改了。
+
+``` js
+    export default{
+        data: () => ({
+            users: {}
+        }),
+        async created() {
+            const users = await axios.get("/api/users");
+            this.users = Object.freeze(users);
+        }
+    };
+```
+
+另外需要说明的是，这里只是冻结了 users的值，引用不会被冻结，当我们需要 reactive数据的时候，我们可以重新给 users赋值。
+
+``` js
+    export default{
+        data: () => ({
+            users: {}
+        }),
+        async created() {
+            const users = await axios.get("/api/users");
+            this.users = Object.freeze(users);
+        },
+        methods:{
+            // 改变值不会触发视图响应
+            this.data.users[0] = newValue
+            // 改变引用依然会触发视图响应
+            this.data.users = newArray
+        }
+    };
+```
+
+> 3.去除多余的样式
+
+随着项目越来越大，书写的不注意，不自然的就会产生一些多余的 css，小项目还好，一旦项目大了以后，多余的 css 会越来越多，导致包越来越大，从而影响项目运行性能，所以有必要在正式环境去除掉这些多余的css，这里推荐一个库purgecss，支持 CLI、JavascriptApi、Webpack 等多种方式使用，通过这个库，我们可以很容易的去除掉多余的 css。
+
+``` html
+    <h1>Hello Vanilla!</h1>
+    <div>
+        We use Parcel to bundle this sandbox, you can find more info about Parcel
+        <a href="https://parceljs.org" target="_blank" rel="noopener noreferrer">here</a>.
+    </div>
+```
+``` css
+    body {
+        font-family: sans-serif;
+    }
+    a {
+        color: red;
+    }
+    ul {
+        li {
+            list-style: none;
+        }
+    }
+```
+``` js
+    import Purgecss from "purgecss";
+    const purgecss = new Purgecss({
+        content: ["**/*.html"],
+        css: ["**/*.css"]
+    });
+    const purgecssResult = purgecss.purge();
+```
+最终产生的 purgecssResult结果如下，可以看到多余的 a和 ul标签的样式都没了
+![](image/Image1.jpg)
+
+> 4.作用域插槽
+
+利用好作用域插槽可以做一些很有意思的事情，比如定义一个基础布局组件A，只负责布局，不管数据逻辑，然后另外定义一个组件B 负责数据处理，布局组件A 需要数据的时候就去 B 里面去取。假设，某一天我们的布局变了，我们只需要去修改组件A 就行，而不用去修改组件B，从而就能充分复用组件B 的数据处理逻辑，关于这块我之前写过一篇实际案例，可以点击这里查看。
+
+这里涉及到的一个最重要的点就是父组件要去获取子组件里面的数据，之前是利用 slot-scope，自 vue 2.6.0 起，提供了更好的支持 slot 和 slot-scope 特性的 API 替代方案。
+
+比如，我们定一个名为 current-user的组件：
+
+``` html
+    <span>
+        <slot>{{ user.lastName }}</slot>
+    </span>
+```
+
+父组件引用 current-user的组件，但想用名替代姓（老外名字第一个单词是名，后一个单词是姓）：
+
+``` html
+    <current-user>
+        {{ user.firstName }}
+    </current-user>
+```
+这种方式不会生效，因为 user对象是子组件的数据，在父组件里面我们获取不到，这个时候我们就可以通过 v-slot来实现。
+
+首先在子组件里面，将 user作为一个 <slot>元素的特性绑定上去：
+
+``` html
+    <span>
+        <slot v-bind:user="user">
+            {{ user.lastName }}
+        </slot>
+    </span>
+```
+
+之后，我们就可以在父组件引用的时候，给 v-slot带一个值来定义我们提供的插槽 prop 的名字：
+
+``` html
+    <current-user>
+        <template v-slot:default="slotProps">
+            {{ slotProps.user.firstName }}
+        </template>
+    </current-user>
+```
+相比之前 slot-scope代码更清晰，更好理解。
+
+> 5.属性事件传递
+
+写过高阶组件的童鞋可能都会碰到过将加工过的属性向下传递的情况，如果碰到属性较多时，需要一个个去传递，非常不友好并且费时，有没有一次性传递的呢（比如react里面的 {...this.props}）？答案就是 v-bind和 v-on。
+
+举个例子，假如有一个基础组件 BaseList，只有基础的列表展示功能，现在我们想在这基础上增加排序功能，这个时候我们就可以创建一个高阶组件 SortList。
+
+``` js
+<!-- SortList -->
+<template>
+   <BaseList v-bind="$props" v-on="$listeners"> <!-- ... --> </BaseList>
+</template>
+
+<script>
+    import BaseList from "./BaseList";
+    // 包含了基础的属性定义
+    import BaseListMixin from "./BaseListMixin";
+    // 封装了排序的逻辑
+    import sort from "./sort.js";
+
+    export default {
+        props: BaseListMixin.props,
+        components: {
+            BaseList
+        }
+    };
+</script>
+```
+
+可以看到传递属性和事件的方便性，而不用一个个去传递
+
+> 6.函数式组件
+
+函数式组件，即无状态，无法实例化，内部没有任何生命周期处理方法，非常轻量，因而渲染性能高，特别适合用来只依赖外部数据传递而变化的组件。
+
+写法如下：
+    1、在template标签里面标明functional
+    2、只接受props值
+    3、不需要script标签
+
+``` js
+<!-- App.vue -->
+<template>
+    <div id="app">
+        <List 
+            :items="['Wonderwoman', 'Ironman']"
+            :item-click="item => (clicked = item)"/>
+        <p>Clicked hero: {{ clicked }}</p>
+    </div>
+</template>
+
+<script>
+    import List from "./List";
+    export default{
+        name: "App",
+        data: () => ({ clicked: ""}),
+        components: { List }
+    };
+</script>
+```
+``` html
+<!-- List.vue 函数式组件 -->
+<template functional>
+    <div>
+        <p v-for="item in props.items" @click="props.itemClick(item);">
+            {{ item }}
+        </p>
+    </div>
+</template>
+```
+
+> 7.监听组件的生命周期
+
+比如有父组件 Parent和子组件 Child，如果父组件监听到子组件挂载 mounted就做一些逻辑处理，常规的写法可能如下：
+
+``` js
+// Parent.vue
+<Child @mounted="doSomething"/>
+
+// Child.vue
+mounted() {
+    this.$emit("mounted");
+}
+```
+
+这里提供一种特别简单的方式，子组件不需要任何处理，只需要在父组件引用的时候通过 @hook来监听即可，代码重写如下：
+
+``` html
+<Child @hook:mounted="doSomething"/>
+```
+
+当然这里不仅仅是可以监听 mounted，其它的生命周期事件，例如： created， updated等都可以

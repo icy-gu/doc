@@ -2,7 +2,7 @@
 
 #### 在package.json里面添加
 
-```
+``` js
 "browserslist": [
     "> 1%",
     "last 2 versions",
