@@ -1,15 +1,16 @@
 ##   导出PDF
 
-### 需要用到的插件
-#### 1、html2canvas（版本1.0.0-rc.1）
+> ### 需要用到的插件
+#### 1. html2canvas（版本1.0.0-rc.1）
 `npm install html2canvas@1.0.0-rc.1`
     
-#### 2、jspdf（版本1.4.1）
+#### 2. jspdf（版本1.4.1）
 `npm install jspdf@1.4.1`
 
 * 目前这两个插件的版本是没有问题的，最新的插件会出现白屏问题
 
-### 代码
+> ### 代码
+
 ``` js
 var title = '打印票'
 // 解决PDF打印模糊的问题
@@ -66,18 +67,19 @@ html2Canvas(pdfDoms[i],opts).then(
 
 ```
 
-### 遇见的问题
-#### 1、PDF分页时将内容一同分开
-##### 解决方法：计算每一页适合展示的内容高度，赋值给imgHeight
+> ### 遇见的问题
 
-#### 2、PDF内容模糊
-##### 解决方法：将canvas的宽高放大两倍
+#### 1. PDF分页时将内容一同分开
+**解决方法：**计算每一页适合展示的内容高度，赋值给imgHeight
+
+#### 2. PDF内容模糊
+**解决方法：**将canvas的宽高放大两倍
 ``` js
 c.width = pdfDoms[i].width * 2
 c.height = pdfDoms[i].height * 2
 c.getContext("2d").scale(2, 2);
 ```
-
 #### 3、导出PDF为黑屏
-##### 原因：数据量加载过大，canvas无法绘制；
-##### 解决方法：分批次导出PDF
+**原因：**数据量加载过大，canvas无法绘制；
+
+**解决方法：**分批次导出PDF

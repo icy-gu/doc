@@ -1,6 +1,6 @@
 ## 多行省略样式打包无效
 
-#### 在package.json里面添加
+#### 在`package.json`里面添加
 
 ``` js
 "browserslist": [

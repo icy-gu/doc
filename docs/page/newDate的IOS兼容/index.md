@@ -1,8 +1,8 @@
 ## new Date()的IOS兼容
 
-> ### 解决js中new Date()的浏览器兼容性问题，IE、safari的new Date()的值为Invalid Date、NaN-NaN的问题
+> ### 解决js中`new Date()`的浏览器兼容性问题，IE、safari的`new Date()`的值为`Invalid Date`、`NaN-NaN`的问题
 
-当我们需要将一串日期字符串转换为具体的Date格式的时候，往往需要使用到new Date('xxxx')方法；
+当我们需要将一串日期字符串转换为具体的`Date`格式的时候，往往需要使用到`new Date('xxxx')`方法；
 
 当时在IE、safari浏览器下，会遇到这种问题：
 ```  js
